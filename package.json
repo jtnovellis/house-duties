@@ -1,0 +1,45 @@
+{
+  "name": "house-duties",
+  "version": "1.0.0",
+  "description": "Console application to track rent and utility bills",
+  "main": "dist/index.js",
+  "bin": {
+    "house-duties": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "start": "node dist/index.js",
+    "db:start": "docker-compose up -d",
+    "db:stop": "docker-compose down",
+    "db:migrate": "prisma migrate dev",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio",
+    "db:reset": "prisma migrate reset"
+  },
+  "keywords": [
+    "bills",
+    "rent",
+    "utilities",
+    "tracker",
+    "console"
+  ],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.19.0",
+  "devDependencies": {
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^20.10.6",
+    "prisma": "^5.7.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.7.1",
+    "chalk": "^4.1.2",
+    "commander": "^11.1.0",
+    "dotenv": "^16.3.1",
+    "inquirer": "^8.2.6",
+    "cli-table3": "^0.6.3"
+  }
+}

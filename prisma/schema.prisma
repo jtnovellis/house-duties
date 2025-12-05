@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum BillType {
+  RENT
+  ELECTRICITY
+  WATER
+  GAS
+  INTERNET
+  PHONE
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+model Bill {
+  id          String        @id @default(uuid())
+  name        String
+  type        BillType
+  amount      Float
+  dueDay      Int           // Day of the month (1-31)
+  description String?
+  active      Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  payments    Payment[]
+
+  @@map("bills")
+}
+
+model Payment {
+  id          String        @id @default(uuid())
+  billId      String
+  bill        Bill          @relation(fields: [billId], references: [id], onDelete: Cascade)
+  amount      Float
+  status      PaymentStatus @default(PENDING)
+  dueDate     DateTime
+  paidDate    DateTime?
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([billId])
+  @@index([dueDate])
+  @@index([status])
+  @@map("payments")
+}
