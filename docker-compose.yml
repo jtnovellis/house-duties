@@ -18,6 +18,36 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - house-duties-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: house-duties-app
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/house_duties?schema=public"
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - house-duties-network
+    stdin_open: true
+    tty: true
+    # Run migrations on startup and then start interactive mode
+    command: >
+      sh -c "
+        npx prisma migrate deploy &&
+        node dist/index.js interactive
+      "
 
 volumes:
   postgres_data:
+
+networks:
+  house-duties-network:
+    driver: bridge

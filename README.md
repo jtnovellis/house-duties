@@ -58,6 +58,25 @@ pnpm db:migrate
 
 ## Usage
 
+### Option 1: Docker (Recommended for Production)
+
+The easiest way to run the application is using Docker:
+
+```bash
+# Build and start all services
+pnpm docker:run
+
+# View logs
+pnpm docker:logs
+
+# Stop services
+pnpm docker:stop
+```
+
+See [DOCKER.md](DOCKER.md) for detailed Docker documentation.
+
+### Option 2: Local Development
+
 ### Interactive Mode (Recommended)
 
 Simply run the application without any arguments to start the interactive menu:
@@ -241,17 +260,24 @@ pnpm start
 
 ## Troubleshooting
 
+**Module not found errors:**
+- Make sure you've run `pnpm install` first
+- The project uses ES Modules - ensure `"type": "module"` is in package.json
+
 **Database connection issues:**
 - Ensure Docker is running: `docker ps`
 - Check if PostgreSQL container is healthy: `docker-compose ps`
 - Verify DATABASE_URL in `.env` file
+- Make sure PostgreSQL is accessible: `docker logs house-duties-db`
 
 **Prisma errors:**
 - Regenerate Prisma client: `pnpm db:generate`
 - Run migrations: `pnpm db:migrate`
+- If migration fails, ensure database is running: `pnpm db:start`
 
 **Build errors:**
 - Clear dist folder and rebuild: `rm -rf dist && pnpm build`
+- Ensure all dependencies are installed: `pnpm install`
 
 ## License
 
