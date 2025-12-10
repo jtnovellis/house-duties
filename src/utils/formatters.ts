@@ -31,9 +31,9 @@ export const formatBillType = (type: BillType): string => {
 
 export const formatPaymentStatus = (status: PaymentStatus): string => {
   const statusColors = {
-    PAID: chalk.green("✓ Pagado"),
-    PENDING: chalk.yellow("○ Pendiente"),
-    OVERDUE: chalk.red("✗ Vencido"),
+    PAID: chalk.green("✓ Paid"),
+    PENDING: chalk.yellow("○ Pending"),
+    OVERDUE: chalk.red("✗ Overdue"),
   };
   return statusColors[status];
 };
