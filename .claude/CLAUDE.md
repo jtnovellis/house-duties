@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+See @.claude/rules/code-style.md for code styling conventions and @.claude/rules/testing.md for testing standards.
+
 ## Project Overview
 
 House Duties is a Node.js TypeScript console application for tracking rent and utility bills by month. It uses PostgreSQL (via Docker) with Prisma ORM, and provides both an interactive menu system and direct CLI commands. Currency and date formatting is configured for Colombian locale (es-CO, COP).
@@ -9,6 +11,7 @@ House Duties is a Node.js TypeScript console application for tracking rent and u
 ## Essential Commands
 
 ### Development Setup (First Time)
+
 ```bash
 pnpm install                # Install dependencies
 pnpm db:start              # Start PostgreSQL container
@@ -17,6 +20,7 @@ pnpm db:migrate            # Run database migrations
 ```
 
 ### Development
+
 ```bash
 pnpm dev                   # Run in development mode (uses tsx)
 pnpm build                 # Compile TypeScript to dist/
@@ -31,6 +35,7 @@ pnpm dev summary
 ```
 
 ### Database Management
+
 ```bash
 pnpm db:start              # Start PostgreSQL container
 pnpm db:stop               # Stop PostgreSQL container
@@ -39,6 +44,7 @@ pnpm db:reset              # Reset database (deletes all data)
 ```
 
 ### Docker (Full Deployment)
+
 ```bash
 pnpm docker:build          # Build Docker image
 pnpm docker:run            # Build and start all services (postgres + app)
@@ -50,13 +56,16 @@ pnpm docker:exec           # Execute shell in container
 ## Architecture
 
 ### Entry Point Flow
+
 The application (`src/index.ts`) uses Commander.js to provide two modes:
+
 1. **Interactive Menu**: When run without arguments (`pnpm dev`), shows an inquirer-based menu
 2. **Direct CLI Commands**: When run with specific commands (e.g., `bills:list`, `payments:generate`)
 
 All commands properly handle database disconnection on exit using `disconnectDatabase()`.
 
 ### Project Structure
+
 ```
 house-duties/
 ├── src/
@@ -86,11 +95,13 @@ house-duties/
 ### Core Domain Models
 
 **Bill**: Represents a recurring expense (rent, utilities, etc.)
+
 - Has a `type` (RENT, ELECTRICITY, WATER, GAS, INTERNET, PHONE, OTHER)
 - Has a `dueDay` (1-31) indicating when it's due each month
 - Can be marked `active` or inactive (inactive bills aren't used for payment generation)
 
 **Payment**: Represents a specific month's payment for a bill
+
 - Linked to a Bill via `billId` with cascade delete
 - Has a `status` (PENDING, PAID, OVERDUE)
 - Generated automatically from active bills via `generateMonthlyPayments()`
@@ -98,12 +109,14 @@ house-duties/
 ### Key Service Layer Patterns
 
 **BillService** (`src/services/billService.ts`):
+
 - Standard CRUD operations for bills (create, getAllBills, getBillById, getBillByName, update, delete)
 - `toggleBillStatus()` to quickly activate/deactivate a bill
 - All queries use the shared Prisma client from `getPrismaClient()`
 - Lists are ordered by `dueDay` ascending
 
 **PaymentService** (`src/services/paymentService.ts`):
+
 - CRUD operations plus specialized queries
 - `generateMonthlyPayments(year, month)`: Creates payments for all active bills for a given month, skipping duplicates
 - `updateOverduePayments()`: Automatically marks PENDING payments past due date as OVERDUE
@@ -114,6 +127,7 @@ house-duties/
 ### Command Layer Pattern
 
 Commands (`src/commands/billCommands.ts`, `src/commands/paymentCommands.ts`) follow this pattern:
+
 1. Use inquirer.js to prompt for user input with validation
 2. Call service layer methods
 3. Use display utilities (chalk, cli-table3) to show results
@@ -133,12 +147,14 @@ Available exports from `paymentCommands.ts`: `listPayments`, `addPayment`, `upda
 ### Display & Formatting Utilities
 
 **display.ts** provides:
+
 - `displayBills()` - Renders bills in a table format
 - `displayPayments()` - Renders payments with bill info in a table
 - `displaySummary()` - Shows total, paid, pending, overdue amounts
 - `displaySuccess()`, `displayError()`, `displayInfo()`, `displayWarning()` - Styled console messages
 
 **formatters.ts** provides (Colombian locale):
+
 - `formatCurrency()` - Formats as COP currency
 - `formatDate()` - Formats as es-CO short date
 - `formatMonth()` - Formats as full month name + year
@@ -154,6 +170,7 @@ Available exports from `paymentCommands.ts`: `listPayments`, `addPayment`, `upda
 ## Prisma Schema Notes
 
 The schema (`prisma/schema.prisma`) uses:
+
 - UUID strings for all IDs (`@default(uuid())`)
 - Enums for BillType and PaymentStatus
 - Cascade delete: deleting a Bill deletes all related Payments
@@ -165,8 +182,9 @@ The schema (`prisma/schema.prisma`) uses:
 1. **ES Modules**: This project uses `"type": "module"` in package.json. All imports must include `.js` extension even for TypeScript files.
 
 2. **Month Handling**: JavaScript dates are 0-indexed (January = 0), but users expect 1-indexed months. Service layer handles this correctly:
+
    ```typescript
-   const startDate = new Date(year, month - 1, 1);  // month-1 for JS Date
+   const startDate = new Date(year, month - 1, 1); // month-1 for JS Date
    ```
 
 3. **Due Day Edge Cases**: Bills with `dueDay: 31` will use the last day of months with fewer than 31 days (JavaScript Date handles this automatically).
@@ -182,11 +200,13 @@ The schema (`prisma/schema.prisma`) uses:
 ## Docker Configuration
 
 ### Multi-stage Dockerfile
+
 - **Stage 1 (deps)**: Installs dependencies with pnpm
 - **Stage 2 (builder)**: Generates Prisma client and builds TypeScript
 - **Stage 3 (runner)**: Production image with non-root user, minimal dependencies
 
 ### Docker Compose Services
+
 - **postgres**: PostgreSQL 16 Alpine with health checks, persistent volume
 - **app**: House Duties app, waits for healthy postgres, runs migrations on startup
 
