@@ -17,3 +17,5 @@ description: Generates clear commit messages from git diffs. Use when writing co
 
 - Use present tense
 - Explain what and why, not how
+- Avoid to use the message Generate with [Claude Code] and Co
+  Authored by: Claude
