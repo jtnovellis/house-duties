@@ -31,26 +31,31 @@ A friendly console application to track rent and utility bills by month, built w
 ## Installation
 
 1. Clone the repository:
+
 ```bash
 cd house-duties
 ```
 
 2. Install dependencies:
+
 ```bash
 pnpm install
 ```
 
 3. Create environment file:
+
 ```bash
 cp .env.example .env
 ```
 
 4. Start PostgreSQL database:
+
 ```bash
 pnpm db:start
 ```
 
 5. Run Prisma migrations:
+
 ```bash
 pnpm db:generate
 pnpm db:migrate
@@ -73,7 +78,7 @@ pnpm docker:logs
 pnpm docker:stop
 ```
 
-See [DOCKER.md](DOCKER.md) for detailed Docker documentation.
+See [docs/DOCKER.md](DOCKER.md) for detailed Docker documentation.
 
 ### Option 2: Local Development
 
@@ -196,6 +201,7 @@ house-duties/
 ## Database Schema
 
 ### Bills Table
+
 - `id`: UUID (Primary Key)
 - `name`: String (Bill name, e.g., "Electric Company")
 - `type`: Enum (RENT, ELECTRICITY, WATER, GAS, INTERNET, PHONE, OTHER)
@@ -207,6 +213,7 @@ house-duties/
 - `updatedAt`: DateTime
 
 ### Payments Table
+
 - `id`: UUID (Primary Key)
 - `billId`: UUID (Foreign Key to Bills)
 - `amount`: Float
@@ -220,16 +227,19 @@ house-duties/
 ## Workflow Example
 
 1. **Add your recurring bills:**
+
    - Run the app and select "Add Bill"
    - Enter details like Rent ($1500, due on day 1)
    - Add all your utility bills
 
 2. **Generate monthly payments:**
+
    - Select "Generate Monthly Payments"
    - Choose the month/year
    - The app creates payment entries for all active bills
 
 3. **Track payment status:**
+
    - Use "Show Monthly Summary" to see all payments
    - Mark payments as paid when you pay them
    - Overdue payments are automatically flagged
@@ -261,21 +271,25 @@ pnpm start
 ## Troubleshooting
 
 **Module not found errors:**
+
 - Make sure you've run `pnpm install` first
 - The project uses ES Modules - ensure `"type": "module"` is in package.json
 
 **Database connection issues:**
+
 - Ensure Docker is running: `docker ps`
 - Check if PostgreSQL container is healthy: `docker-compose ps`
 - Verify DATABASE_URL in `.env` file
 - Make sure PostgreSQL is accessible: `docker logs house-duties-db`
 
 **Prisma errors:**
+
 - Regenerate Prisma client: `pnpm db:generate`
 - Run migrations: `pnpm db:migrate`
 - If migration fails, ensure database is running: `pnpm db:start`
 
 **Build errors:**
+
 - Clear dist folder and rebuild: `rm -rf dist && pnpm build`
 - Ensure all dependencies are installed: `pnpm install`
 
