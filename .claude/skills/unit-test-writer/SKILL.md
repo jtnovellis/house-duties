@@ -21,9 +21,9 @@ allowed-tools: Read, Write, Edit, Grep, Glob
 ## Test Structure
 
 ```typescript
-describe('FunctionName', () => {
-  describe('when [scenario]', () => {
-    it('should [expected behavior]', () => {
+describe("FunctionName", () => {
+  describe("when [scenario]", () => {
+    it("should [expected behavior]", () => {
       // Arrange: Set up test data
       // Act: Execute the function
       // Assert: Verify the result
