@@ -18,13 +18,13 @@ export const formatDate = (date: Date): string => {
 
 export const formatBillType = (type: BillType): string => {
   const typeMap: Record<BillType, string> = {
-    RENT: "Arriendo",
-    ELECTRICITY: "Luz",
-    WATER: "Agua",
+    RENT: "Rent",
+    ELECTRICITY: "Electricity",
+    WATER: "Water",
     GAS: "Gas",
     INTERNET: "Internet",
-    PHONE: "Teléfono",
-    OTHER: "Otro",
+    PHONE: "Phone",
+    OTHER: "Other",
   };
   return typeMap[type];
 };
