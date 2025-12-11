@@ -5,6 +5,7 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import dotenv from 'dotenv';
 import { disconnectDatabase } from './services/database.js';
+import { getVersion } from './utils/version.js';
 import {
   listBills,
   addBill,
@@ -26,16 +27,19 @@ dotenv.config();
 
 const program = new Command();
 
+const version = getVersion();
+
 program
   .name('house-duties')
   .description('Console application to track rent and utility bills')
-  .version('1.0.0');
+  .version(version);
 
 // Interactive menu
 const showMainMenu = async (): Promise<void> => {
   console.clear();
   console.log(chalk.bold.cyan('\n================================='));
   console.log(chalk.bold.cyan('   House Duties - Bill Tracker'));
+  console.log(chalk.bold.cyan(`         Version ${version}`));
   console.log(chalk.bold.cyan('=================================\n'));
 
   const { action } = await inquirer.prompt([
@@ -44,21 +48,21 @@ const showMainMenu = async (): Promise<void> => {
       name: 'action',
       message: 'What would you like to do?',
       choices: [
-        { name: chalk.green('=Ê Show Monthly Summary'), value: 'summary' },
-        { name: '=Ë List Bills', value: 'list-bills' },
-        { name: '• Add Bill', value: 'add-bill' },
+        { name: chalk.green('=ï¿½ Show Monthly Summary'), value: 'summary' },
+        { name: '=ï¿½ List Bills', value: 'list-bills' },
+        { name: 'ï¿½ Add Bill', value: 'add-bill' },
         { name: '  Update Bill', value: 'update-bill' },
-        { name: '=Ñ  Delete Bill', value: 'delete-bill' },
+        { name: '=ï¿½  Delete Bill', value: 'delete-bill' },
         new inquirer.Separator(),
-        { name: '=° List Payments', value: 'list-payments' },
-        { name: '• Add Payment', value: 'add-payment' },
+        { name: '=ï¿½ List Payments', value: 'list-payments' },
+        { name: 'ï¿½ Add Payment', value: 'add-payment' },
         { name: '  Update Payment', value: 'update-payment' },
         { name: ' Mark Payment as Paid', value: 'mark-paid' },
-        { name: '=Ñ  Delete Payment', value: 'delete-payment' },
+        { name: '=ï¿½  Delete Payment', value: 'delete-payment' },
         new inquirer.Separator(),
         { name: '= Generate Monthly Payments', value: 'generate-payments' },
         new inquirer.Separator(),
-        { name: chalk.red('=ª Exit'), value: 'exit' },
+        { name: chalk.red('=ï¿½ Exit'), value: 'exit' },
       ],
       pageSize: 20,
     },

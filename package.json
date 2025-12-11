@@ -32,7 +32,7 @@
   ],
   "author": "",
   "license": "MIT",
-  "packageManager": "pnpm@10.19.0",
+  "packageManager": "pnpm@10.25.0",
   "devDependencies": {
     "@types/inquirer": "^9.0.7",
     "@types/node": "^20.10.6",
@@ -43,9 +43,9 @@
   "dependencies": {
     "@prisma/client": "^5.7.1",
     "chalk": "^4.1.2",
+    "cli-table3": "^0.6.3",
     "commander": "^11.1.0",
     "dotenv": "^16.3.1",
-    "inquirer": "^8.2.6",
-    "cli-table3": "^0.6.3"
+    "inquirer": "^8.2.6"
   }
 }
