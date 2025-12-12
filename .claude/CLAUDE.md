@@ -202,8 +202,9 @@ The schema (`prisma/schema.prisma`) uses:
 ### Multi-stage Dockerfile
 
 - **Stage 1 (deps)**: Installs dependencies with pnpm
-- **Stage 2 (builder)**: Generates Prisma client and builds TypeScript
-- **Stage 3 (runner)**: Production image with non-root user, minimal dependencies
+- **Stage 2 (test)**: Runs unit tests (build fails if tests fail), supports SKIP_TESTS build arg
+- **Stage 3 (builder)**: Inherits from test stage, builds TypeScript
+- **Stage 4 (runner)**: Production image with non-root user, minimal dependencies
 
 ### Docker Compose Services
 
