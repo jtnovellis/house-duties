@@ -4,6 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 See @.claude/rules/code-style.md for code styling conventions and @.claude/rules/testing.md for testing standards.
 
+Always use context7 when I need code generation, setup or configuration steps, or
+library/API documentation. This means you should automatically use the Context7 MCP
+tools to resolve library id and get library docs without me having to explicitly ask.
+
 ## Project Overview
 
 House Duties is a Node.js TypeScript console application for tracking rent and utility bills by month. It uses PostgreSQL (via Docker) with Prisma ORM, and provides both an interactive menu system and direct CLI commands. Currency and date formatting is configured for Colombian locale (es-CO, COP).
