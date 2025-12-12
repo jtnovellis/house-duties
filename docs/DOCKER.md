@@ -12,13 +12,20 @@ The Dockerfile uses **multi-stage builds** following best practices:
 - Copies and installs all dependencies
 - Uses `--frozen-lockfile` to ensure reproducible builds
 
-### Stage 2: Builder
-- Copies dependencies from Stage 1
-- Generates Prisma Client
+### Stage 2: Test
+- Inherits from Dependencies stage
+- Sets test environment variables
+- Generates Prisma Client for type checking
+- Copies source code and test configuration
+- **Runs all unit tests** (build fails if tests fail)
+- Supports optional test skipping via `SKIP_TESTS` build argument
+
+### Stage 3: Builder
+- Inherits from Test stage (ensures tests pass before building)
 - Builds TypeScript source code to JavaScript
 - Creates optimized production build
 
-### Stage 3: Production (Runner)
+### Stage 4: Production (Runner)
 - Minimal production image
 - Installs only production dependencies
 - Creates non-root user for security
@@ -47,11 +54,27 @@ The `docker-compose.yml` includes two services:
 ### Build the Docker Image
 
 ```bash
-# Build manually
+# Build manually (includes running tests)
 docker build -t house-duties:latest .
 
 # Or use the npm script
 pnpm docker:build
+
+# Skip tests (emergency use only - NOT RECOMMENDED)
+docker build --build-arg SKIP_TESTS=true -t house-duties:latest .
+```
+
+**Note:** By default, the Docker build process runs all unit tests. The build will fail if any tests fail, ensuring only tested code is deployed. You can skip tests using the `SKIP_TESTS` build argument, but this is only recommended for emergency situations.
+
+### Run Only Tests (Without Full Build)
+
+If you want to run tests without building the full production image (useful for CI/CD):
+
+```bash
+# Run only up to the test stage
+docker build --target test -t house-duties:test .
+
+# This verifies tests pass without building the production image
 ```
 
 ### Run with Docker Compose
@@ -174,17 +197,33 @@ docker exec -i house-duties-db psql -U postgres house_duties < backup.sql
 ## Best Practices Implemented
 
 1. **Multi-stage builds**: Reduces final image size
-2. **Alpine Linux**: Minimal base image (~5MB vs ~900MB)
-3. **Non-root user**: Enhanced security
-4. **Layer caching**: Optimized build times
-5. **Health checks**: Container monitoring
-6. **.dockerignore**: Excludes unnecessary files
-7. **Frozen lockfile**: Reproducible builds
-8. **Production dependencies only**: Smaller image
-9. **Proper file ownership**: Security best practice
-10. **Network isolation**: Services in private network
+2. **Automated testing**: Tests run during build (Stage 2)
+3. **Alpine Linux**: Minimal base image (~5MB vs ~900MB)
+4. **Non-root user**: Enhanced security
+5. **Layer caching**: Optimized build times
+6. **Health checks**: Container monitoring
+7. **.dockerignore**: Excludes unnecessary files
+8. **Frozen lockfile**: Reproducible builds
+9. **Production dependencies only**: Smaller image
+10. **Proper file ownership**: Security best practice
+11. **Network isolation**: Services in private network
 
 ## Troubleshooting
+
+### Build fails during test stage
+
+If the Docker build fails during the test stage:
+
+```bash
+# View the full build output to see which tests failed
+docker build -t house-duties:latest .
+
+# Run tests locally to debug
+pnpm test
+
+# Skip tests temporarily (not recommended)
+docker build --build-arg SKIP_TESTS=true -t house-duties:latest .
+```
 
 ### Container won't start
 
