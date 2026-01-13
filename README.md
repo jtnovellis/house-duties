@@ -21,6 +21,7 @@ A friendly console application to track rent and utility bills by month, built w
 - **CLI Framework:** Commander.js
 - **Interactive Prompts:** Inquirer.js
 - **UI Styling:** Chalk, cli-table3
+- **Testing:** Vitest with comprehensive unit test coverage
 
 ## Prerequisites
 
@@ -259,7 +260,61 @@ pnpm build
 
 # Run built version
 pnpm start
+
+# Run tests
+pnpm test
+
+# Run tests with UI
+pnpm test:ui
+
+# Run tests with coverage
+pnpm test:coverage
 ```
+
+## Testing
+
+The project includes comprehensive unit tests built with **Vitest**:
+
+- **Test Coverage**: Extensive tests for utility functions with edge cases
+- **Co-located Tests**: Test files are placed next to the code they test (`*.test.ts`)
+- **AAA Pattern**: Tests follow Arrange-Act-Assert pattern for clarity
+- **Docker Integration**: Tests run automatically during Docker builds
+
+### Running Tests
+
+```bash
+# Run all tests
+pnpm test
+
+# Run tests in watch mode
+pnpm test:watch
+
+# Run tests with UI
+pnpm test:ui
+
+# Generate coverage report
+pnpm test:coverage
+```
+
+### Test Files
+
+- `src/utils/formatters.test.ts` - Currency, date, and status formatting
+- `src/utils/version.test.ts` - Version extraction and error handling
+
+### Testing in Docker
+
+When building the Docker image, all tests run automatically in Stage 2:
+
+```bash
+# Build with tests (default)
+pnpm docker:build
+
+# Tests must pass for build to succeed
+# Skip tests only in emergencies (not recommended)
+docker build --build-arg SKIP_TESTS=true -t house-duties:latest .
+```
+
+If tests fail during Docker build, the build process stops, ensuring only tested code is deployed.
 
 ## Tips
 

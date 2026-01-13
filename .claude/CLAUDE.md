@@ -219,6 +219,72 @@ The schema (`prisma/schema.prisma`) uses:
 
 This project uses **pnpm** (specified in `packageManager` field as pnpm@10.25.0). Always use `pnpm` commands, not `npm` or `yarn`.
 
+## Testing
+
+### Testing Framework and Standards
+
+The project uses **Vitest** for unit testing with comprehensive coverage standards:
+
+- **Test Location**: Tests are co-located with source files using `.test.ts` suffix
+- **Current Coverage**:
+  - `formatters.ts`: 509 lines of tests covering all formatting functions
+  - `version.ts`: 532 lines of tests with extensive edge case coverage
+- **Test Structure**: AAA pattern (Arrange, Act, Assert) with descriptive test names
+- **Coverage Targets**:
+  - Services: 80%+ (business logic)
+  - Utils: 90%+ (pure functions)
+  - Commands: 60%+ (integration points)
+
+### Running Tests
+
+```bash
+pnpm test              # Run all tests
+pnpm test:ui           # Run tests with UI
+pnpm test:coverage     # Run tests with coverage report
+```
+
+### Testing in CI/CD
+
+The Docker build pipeline includes automated testing:
+- **Stage 2 (test)**: Runs all unit tests during image build
+- **Build fails if tests fail**: Ensures only tested code is deployed
+- **Skip tests**: Use `--build-arg SKIP_TESTS=true` (emergency only, not recommended)
+
+See `.claude/rules/testing.md` for detailed testing conventions and best practices.
+
+### Test Files
+
+Current test coverage:
+- `src/utils/formatters.test.ts`: Currency, date, month, bill type, and payment status formatting
+- `src/utils/version.test.ts`: Version extraction with edge cases and error handling
+
+## Claude Code Features
+
+### Skills
+
+The project includes custom skills for code quality and development workflow:
+
+- **commit-helper**: Generates clear commit messages from git diffs
+- **code-reviewer**: Reviews code for best practices and potential issues
+- **unit-test-writer**: Writes comprehensive unit tests for functions and classes
+
+Use skills with the `/` prefix in Claude Code CLI (e.g., `/commit-helper`).
+
+### Agents
+
+Custom agents are available for specialized tasks:
+
+- **code-reviewer**: Automated code review with suggestions
+- **task-planner**: Breaks down development tasks into actionable steps
+- **unit-test-generator**: Creates comprehensive test suites with edge cases
+
+Agents are defined in `.claude/agents/` directory.
+
+### Code Style and Testing Rules
+
+- **Code Style**: See `.claude/rules/code-style.md` for comprehensive coding standards
+- **Testing Standards**: See `.claude/rules/testing.md` for testing conventions
+
 ## CLI Commands Reference
 
 ```bash
