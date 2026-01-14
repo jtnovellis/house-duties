@@ -1,5 +1,6 @@
 import { PaymentStatus, Payment, Bill } from '@prisma/client';
 import { getPrismaClient } from './database.js';
+import { formatMonth } from '../utils/formatters.js';
 
 export interface CreatePaymentInput {
   billId: string;
@@ -17,6 +18,34 @@ export interface UpdatePaymentInput {
 
 export interface PaymentWithBill extends Payment {
   bill: Bill;
+}
+
+export interface MonthSummary {
+  year: number;
+  month: number;
+  monthLabel: string;
+  total: number;
+  paid: number;
+  pending: number;
+  overdue: number;
+}
+
+export interface ComparisonMetric {
+  metricName: string;
+  values: number[];
+  change: number;
+  percentageChange: number | null;
+  trend: 'up' | 'down' | 'stable';
+}
+
+export interface PaymentComparison {
+  months: MonthSummary[];
+  metrics: {
+    total: ComparisonMetric;
+    paid: ComparisonMetric;
+    pending: ComparisonMetric;
+    overdue: ComparisonMetric;
+  };
 }
 
 export class PaymentService {
@@ -162,5 +191,98 @@ export class PaymentService {
     });
 
     return summary;
+  }
+
+  async getPaymentComparison(year: number, month: number): Promise<PaymentComparison> {
+    // Calculate the 3 months to compare
+    const months = this.calculatePreviousMonths(year, month, 3);
+
+    // Fetch summaries for all 3 months in parallel
+    const summaries = await Promise.all(
+      months.map(async ({ year, month }) => {
+        const summary = await this.getPaymentsSummary(year, month);
+        return {
+          year,
+          month,
+          monthLabel: formatMonth(new Date(year, month - 1)),
+          ...summary,
+        };
+      })
+    );
+
+    // Calculate comparison metrics
+    const metrics = this.calculateComparisonMetrics(summaries);
+
+    return {
+      months: summaries,
+      metrics,
+    };
+  }
+
+  private calculatePreviousMonths(
+    year: number,
+    month: number,
+    count: number
+  ): Array<{ year: number; month: number }> {
+    const months: Array<{ year: number; month: number }> = [];
+
+    for (let i = count - 1; i >= 0; i--) {
+      let targetMonth = month - i;
+      let targetYear = year;
+
+      // Handle year boundary
+      while (targetMonth < 1) {
+        targetMonth += 12;
+        targetYear -= 1;
+      }
+
+      months.push({ year: targetYear, month: targetMonth });
+    }
+
+    return months;
+  }
+
+  private calculateComparisonMetrics(
+    summaries: MonthSummary[]
+  ): PaymentComparison['metrics'] {
+    const createMetric = (
+      metricName: string,
+      values: number[]
+    ): ComparisonMetric => {
+      const previousValue = values[1];
+      const currentValue = values[2];
+      const change = currentValue - previousValue;
+
+      // Calculate percentage change (avoid division by zero)
+      let percentageChange: number | null = null;
+      if (previousValue !== 0) {
+        percentageChange = (change / previousValue) * 100;
+      }
+
+      // Determine trend
+      let trend: 'up' | 'down' | 'stable';
+      if (Math.abs(change) < 0.01) {
+        trend = 'stable';
+      } else if (change > 0) {
+        trend = 'up';
+      } else {
+        trend = 'down';
+      }
+
+      return {
+        metricName,
+        values,
+        change,
+        percentageChange,
+        trend,
+      };
+    };
+
+    return {
+      total: createMetric('Total', summaries.map((s) => s.total)),
+      paid: createMetric('Paid', summaries.map((s) => s.paid)),
+      pending: createMetric('Pending', summaries.map((s) => s.pending)),
+      overdue: createMetric('Overdue', summaries.map((s) => s.overdue)),
+    };
   }
 }

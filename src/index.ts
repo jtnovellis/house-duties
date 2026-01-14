@@ -20,6 +20,7 @@ import {
   deletePayment,
   generateMonthlyPayments,
   showMonthlySummary,
+  comparePayments,
 } from './commands/paymentCommands.js';
 
 // Load environment variables
@@ -61,6 +62,7 @@ const showMainMenu = async (): Promise<void> => {
         { name: '=�  Delete Payment', value: 'delete-payment' },
         new inquirer.Separator(),
         { name: '= Generate Monthly Payments', value: 'generate-payments' },
+        { name: '📊 Compare Payments (Last 3 Months)', value: 'compare-payments' },
         new inquirer.Separator(),
         { name: chalk.red('=� Exit'), value: 'exit' },
       ],
@@ -101,6 +103,9 @@ const showMainMenu = async (): Promise<void> => {
       break;
     case 'generate-payments':
       await generateMonthlyPayments();
+      break;
+    case 'compare-payments':
+      await comparePayments();
       break;
     case 'exit':
       console.log(chalk.cyan('\nGoodbye! =K\n'));
@@ -293,6 +298,20 @@ program
   .action(async () => {
     try {
       await showMonthlySummary();
+      await disconnectDatabase();
+    } catch (error) {
+      console.error(chalk.red('Error:'), error);
+      await disconnectDatabase();
+      process.exit(1);
+    }
+  });
+
+program
+  .command('payments:compare')
+  .description('Compare payment summaries for the last 3 months')
+  .action(async () => {
+    try {
+      await comparePayments();
       await disconnectDatabase();
     } catch (error) {
       console.error(chalk.red('Error:'), error);

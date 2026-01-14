@@ -8,6 +8,7 @@ import {
   displayError,
   displayInfo,
   displaySummary,
+  displayPaymentComparison,
 } from '../utils/display.js';
 import { formatCurrency, formatMonth } from '../utils/formatters.js';
 
@@ -366,6 +367,48 @@ export const showMonthlySummary = async (): Promise<void> => {
     displaySummary(summary.total, summary.paid, summary.pending, summary.overdue);
   } catch (error) {
     displayError('Failed to show monthly summary');
+    console.error(error);
+  }
+};
+
+export const comparePayments = async (): Promise<void> => {
+  try {
+    const { monthYear } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'monthYear',
+        message: 'Enter the most recent month to compare (YYYY-MM):',
+        default: () => {
+          const now = new Date();
+          return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        },
+        validate: (input) => {
+          const regex = /^\d{4}-\d{2}$/;
+          if (!regex.test(input)) {
+            return 'Invalid format. Use YYYY-MM';
+          }
+
+          const monthStr = input.split('-')[1];
+          const month = parseInt(monthStr);
+
+          if (month < 1 || month > 12) {
+            return 'Month must be between 1 and 12';
+          }
+
+          return true;
+        },
+      },
+    ]);
+
+    const [year, month] = monthYear.split('-').map(Number);
+
+    // Update overdue payments first
+    await paymentService.updateOverduePayments();
+
+    const comparison = await paymentService.getPaymentComparison(year, month);
+    displayPaymentComparison(comparison);
+  } catch (error) {
+    displayError('Failed to generate payment comparison');
     console.error(error);
   }
 };

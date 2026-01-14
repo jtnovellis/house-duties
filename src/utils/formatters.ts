@@ -44,3 +44,18 @@ export const formatMonth = (date: Date): string => {
     month: "long",
   }).format(date);
 };
+
+export const formatPercentage = (value: number | null): string => {
+  if (value === null) {
+    return 'N/A';
+  }
+
+  // Format with 1 decimal place and % symbol
+  const formatted = new Intl.NumberFormat('es-CO', {
+    style: 'percent',
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(value / 100);
+
+  return formatted;
+};
